@@ -2,22 +2,23 @@ import logo from './logo.svg';
 import './App.css';
 import { Layout } from 'antd';
 import { BrowserRouter, Route, Routes, Outlet } from 'react-router-dom';
-import Home from './components/Home';
+import Home from './pages/Home';
 import DetalleVuelo from './components/useFetchConsultarVuelos';
-import ListaVuelos from './components/ListaVuelos';
+import ListaVuelos from './pages/ListaVuelos';
 
 function App() {
   
   return (
-    <BrowserRouter>
+    
       <Routes>
-        <Route path="/" element={<Container />} >
-          <Route path="/" element={<Home />} />
+        <Route  element={<Container />} >
+          <Route element={<Home />} index />
           <Route path="ListaVuelos" element={<ListaVuelos  />} />
           <Route path="DetalleVuelo/:id" element={<DetalleVuelo  />} />
+          <Route path="*" element={<h1>Pagina no encontrada 404</h1>}/>
         </Route>
       </Routes>
-    </BrowserRouter>
+    
     // <div className="App">
     //   <header className="App-header">
     //     {loading && <p>Cargando...</p>}

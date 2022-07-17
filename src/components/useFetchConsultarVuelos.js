@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useConfFecthAmadeus from './useConfFetchAmadeus';
+import useConfFecthAmadeus from '../api/useConfFetchAmadeus';
 
 const useFetchConsultarVuelos = () => {
     const [vuelos, setVuelos] = useState([]);

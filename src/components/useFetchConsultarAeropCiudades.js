@@ -1,8 +1,9 @@
 import { useState } from "react";
-import useConfFecthAmadeus from './useConfFetchAmadeus';
+import useConfFecthAmadeus from '../api/useConfFetchAmadeus';
 
 const useFetchConsultarAeropCiudades = () => {
-    const [datos, setDatos] = useState([]);
+    //const [datos, setDatos] = useState([]);
+    let datos = [];
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const { getToken, urlPpal } = useConfFecthAmadeus();
@@ -25,8 +26,10 @@ const useFetchConsultarAeropCiudades = () => {
             "keyword="+txtBusqueda, requestOptions);
             const data = await response.json();
             if (!data.errors) {
-                //console.log('ok',data.data);
-                setDatos(data.data);
+                console.log('ok',data.data);
+                //setDatos(data.data);
+                datos = data.data;
+                return datos;
             }
             else {
                 setError(data.errors.detail);
@@ -39,6 +42,6 @@ const useFetchConsultarAeropCiudades = () => {
         setLoading(false);
     }
 
-    return { consultarAeropuertos, datos, loading, error };
+    return { consultarAeropuertos, loading, error };
 }
 export default useFetchConsultarAeropCiudades;

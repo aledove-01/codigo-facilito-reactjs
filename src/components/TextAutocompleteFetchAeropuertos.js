@@ -9,14 +9,18 @@ import edificioImg from '../images/edificio.png';
 import avionImg from '../images/plano-alt.png';
 
 const TextAutocompleteFetchAeropuertos = (props) => {
+    const [txtBusqueda, setTxtBusqueda] = useState('');
+
     const { name, placeholder, onSelected } = props;
     const [aeropuertos, setAeropuertos] = useState([]);
     const [ciudades, setCiudades] = useState([]);
-    const { consultarAeropuertos, loading, error,datos } = useFetchConsultarAeropCiudades();
+    const { consultarAeropuertos, loading, error } = useFetchConsultarAeropCiudades();
     const [localidadesAeropuertos, setLocalidadesAeropuertos] = useState([{}]);
     // const [showNoResultsText, SetShowNoResultsText] = useState('No hay resultados');
     // const [lugarSeleccionado, setLugarSeleccionado] = useState('');
+     
 
+   
     const seleccionoUbicacion = (e) => {
         console.log(e);
     }
@@ -24,16 +28,25 @@ const TextAutocompleteFetchAeropuertos = (props) => {
     const renderTitle = (titulo, tipo) => (
         <div>
             {tipo === 'CITY'?<img style={{
-                width:'20px', height:'15px', float: 'left', paddingRight:'5px'
+                width:'20px', height:'15px', float: 'left', paddingRight:'10px'
             }} src={edificioImg} />:<img style={{
-                width:'20px', height:'15px', float: 'left', paddingRight:'5px'
+                width:'20px', height:'15px', float: 'left', paddingRight:'10px'
             }} src={avionImg} />}
             <span>
                 { titulo}
             </span>
         </div>
       );
-
+    const options = [
+      {
+        label: renderTitle('Ciudades', 'CITY'),
+        options: ciudades,
+      },
+      {
+        label: renderTitle('Aeropuertos', 'AIRPORTS'),
+        options: aeropuertos,
+      }
+    ];
     const renderItem = (titulo, nombre, id, iata, pais, cssPais ) => ({
         value: nombre+' - ('+iata+') '+pais+' ['+ id + ']',
         label: (
@@ -44,24 +57,17 @@ const TextAutocompleteFetchAeropuertos = (props) => {
             }}
           >
             {titulo}
-            <div style={{display: 'flex'}}>
-              <div className={cssPais}/>
-              {nombre} - {pais} - {iata}
-            </div>
+            
+                {nombre} - {pais} - {iata}
+              <div style={{
+                  float: 'left', paddingRight:'10px'}}>
+                  <div className={cssPais} />
+              </div>
           </div>
         ),
       });
 
-      const options = [
-        {
-          label: renderTitle('Ciudades', 'CITY'),
-          options: ciudades,
-        },
-        {
-          label: renderTitle('Aeropuertos', 'AIRPORTS'),
-          options: aeropuertos,
-        }
-      ];
+      
     // const handleOnSelect = (value,options) => {
     //   try {
     //     console.log(options)
@@ -73,38 +79,49 @@ const TextAutocompleteFetchAeropuertos = (props) => {
     //}
     const handleOnSearch = async (ctr) => {
         console.log(ctr);
-
+         
         if (ctr.length > 2) {
             message.info('Buscando ['+ctr+']');
-            setAeropuertos([]);
-            setCiudades([]);
-            let colCiudades = [];
-            let colAeropuertos = [];
+            setTxtBusqueda(ctr);
+            
+            const consultaDatos = async () => {
+              if (txtBusqueda.length >= 3) {
+                consultarAeropuertos(ctr).then((datos)=>{
+                  console.log('dat:',datos)
+                  setAeropuertos([]);
+                  setCiudades([]);
+                  let colCiudades = [];
+                  let colAeropuertos = [];
+          
+                  //SetShowNoResultsText('Buscando...');
+                  //await consultarAeropuertos(ctr)
+                  //const detalleCiudadesAuerpResult = await datos;
+                  
+                  
+                  setLocalidadesAeropuertos(datos?.map((dato)=>{
+                      console.log(dato.titulo,dato.subType,dato.name,dato.iata)
+                      if(dato.subType === 'CITY'){
+                          colCiudades.push(renderItem(dato.titulo,dato.name,dato.id,dato.iataCode, dato.address.countryName, 'flag flag-'+dato.address.countryCode.toLowerCase()));
+                      }else{
+                          colAeropuertos.push(renderItem(dato.titulo,dato.name,dato.id,dato.iataCode, dato.address.countryName, 'flag flag-'+dato.address.countryCode.toLowerCase()));
+                      }
+                      
+                  }))
+                  setAeropuertos(colAeropuertos);
+                  setCiudades(colCiudades);
+                        
+                  
+          
+                  if (datos?.length <= 0) {
+                      message.info('No hay resultados');
+                      setLocalidadesAeropuertos([{}])
+                  };
 
-            //SetShowNoResultsText('Buscando...');
-            await consultarAeropuertos(ctr)
-            console.log(datos);
-
-            // .then((datos1) => {
-                 //console.log('cant: ',datos1);
-                 setLocalidadesAeropuertos(datos.map((dato)=>{
-                     console.log(dato.titulo,dato.subType,dato.name,dato.iata)
-                     if(dato.subType === 'CITY'){
-                         colCiudades.push(renderItem(dato.titulo,dato.name,dato.id,dato.iataCode, dato.address.countryName, 'flag flag-'+dato.address.countryCode.toLowerCase()));
-                     }else{
-                         colAeropuertos.push(renderItem(dato.titulo,dato.name,dato.id,dato.iataCode, dato.address.countryName, 'flag flag-'+dato.address.countryCode.toLowerCase()));
-                     }
-                     //return {id: dato.id, iata: dato.iataCode, name: dato.name}
-                 }))
-                 setAeropuertos(colAeropuertos);
-                 setCiudades(colCiudades);
-                 //setMuestroResultados(true);
-             //});
+                });
+              }
+            }
+            consultaDatos();
            
-            if (datos.length <= 0) {
-                //SetShowNoResultsText('No hay resultados');
-                setLocalidadesAeropuertos([{}])
-            };
 
         }
         

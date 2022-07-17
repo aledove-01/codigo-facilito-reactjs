@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import useFetchConsultarVuelos from './useFetchConsultarVuelos';
+import useFetchConsultarVuelos from '../components/useFetchConsultarVuelos';
 import {Formik} from 'formik';
-import TextAutocompleteFetchAeropuertos from './TextAutocompleteFetchAeropuertos';
+import TextAutocompleteFetchAeropuertos from '../components/TextAutocompleteFetchAeropuertos';
 import { Button, Card, Form, DatePicker,Typography,Divider,Spin,Switch,message } from 'antd';
-import CantPasajeros from './CantPasajeros';
+import CantPasajeros from '../components/CantPasajeros';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -55,7 +55,7 @@ const Home = () => {
         //console.log('error',error);
         //setMuestroResultados(true);  
         setIsLoading(false);
-        navigate(`/resultados/${lugarOrigen}/${lugarDestino}/${fechaInicial}/${fechaFinal}/${cantAdultos}/${cantNinos}/${cantBebes}`);
+        navigate(`/ListaVuelos/${lugarOrigen}/${lugarDestino}/${fechaInicial}/${fechaFinal}/${cantAdultos}/${cantNinos}/${cantBebes}`);
     }
 
     const disabledDate = (current) => {
