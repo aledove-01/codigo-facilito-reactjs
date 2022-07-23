@@ -11,7 +11,7 @@ const DetalleVuelo = () => {
     const detalleRes = useSelector(state => state.detalleVuelo.data);
     const detalleBus = useSelector(state => state.busquedaVuelos.data);
 
-    //console.log('detalle',detalleBus)
+    console.log('detalle',detalleRes)
     const { Title, Text } = Typography;
     
     useEffect(() => {
@@ -28,6 +28,9 @@ const DetalleVuelo = () => {
         <Card>
             <section>
                 <Title level={4}>Detalle vuelo seleccionado</Title>
+                <Text>Cant. Adultos: {detalleBus.adultos}</Text>
+                {detalleBus.ninios> 0 && <Text>Cant. Niños: {detalleBus.ninios}</Text>}
+                {detalleBus.bebes > 0 && <Text>Cant. Bebes: {detalleBus.bebes}</Text>}
                 <Statistic title="Precio Total" prefix={detalleRes.price.currency} value={detalleRes.price.total} />
             </section>
             
@@ -39,13 +42,13 @@ const DetalleVuelo = () => {
                 })
             }
             <Divider />
-            
+            {detalleBus.fechaRegreso && <>
             VUELTA
             {
                 detalleRes.itineraries[1].segments.map((vuelo,index) => {
                     return Escala(vuelo,index,detalleRes.itineraries[0].duration);
                 })
-            }
+            }</>}
            
         </Card>
     )

@@ -83,8 +83,19 @@ const ListaVuelos = (params) => {
                         <DetaVuelo itirenarie={vuelo.itineraries[1]}  oneWay="false" />
                     </div>
                     </>):(
-
-                    <>
+                        <>
+                            <section>
+                                <h3>Escalas {vuelo.itineraries[0].segments.length} Asientos disponibles: {vuelo.numberOfBookableSeats}</h3>
+                                <Image  src={require('../images/aerolineas/' + vuelo.itineraries[0].segments[0].carrierCode + '.gif')} />
+                            </section>
+                            <div>
+                                <div>
+                                    <h2>Salida: </h2><span>Duracion estimada {duracionString(vuelo.itineraries[0].duration.split('T')[1])} </span>
+                                    <DetaVuelo itirenarie={vuelo.itineraries[0]} oneWay="false"   />
+                                </div>
+                            </div>
+                        
+                        
 
                     </>)}
                     <div>
