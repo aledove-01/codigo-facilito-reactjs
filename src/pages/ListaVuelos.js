@@ -56,9 +56,9 @@ const ListaVuelos = (params) => {
     const handleClickComprar = (id) => {
         console.log(id)
         dispatch(vueloStart());
-        dispatch(vueloComplete(vuelosResultado[id-1]));
+        dispatch(vueloComplete(vuelosResultado.data[id-1]));
        
-        if(id == 2) navigate('/DetalleVuelo');
+        navigate('/DetalleVuelo');
     }
     return (
         <div>

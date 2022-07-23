@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import useFetchConsultarVuelos from '../components/useFetchConsultarVuelos';
 import { useFormik, Form, Field } from 'formik';
 import TextAutocompleteFetchAeropuertos from '../components/TextAutocompleteFetchAeropuertos';
-import { Button, DatePicker,Typography,Divider,Spin,Switch,message } from 'antd';
+import { Button, DatePicker,Space,Typography,Divider,Spin,Switch,message } from 'antd';
 import CantPasajeros from '../components/CantPasajeros';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -35,22 +35,20 @@ const Home = () => {
     },[]);
 
     //VALIDACION FORMULARIO
-    const validateOrigen = (value) => {
-        console.log('origen',value)
+    const validateOrigen = () => {
+        //console.log('lugarOrigen',lugarOrigen);
         if (lugarOrigen === '' || lugarOrigen === undefined && getIataCode(lugarOrigen) === ''){
             return 'Debe seleccionar un aeropuerto de origen';
         }
         return true;
     }
-    const validateDestino = (value) => {
-        //console.log(value)
+    const validateDestino = () => {
         if (lugarDestino === '' || lugarDestino === undefined && getIataCode(lugarDestino) === ''){
             return 'Debe seleccionar un aeropuerto de destino';
         }
         return true;
     }
-    const validateFecha = (value) => {
-        //console.log('V',fechaInicial,fechaFinal);
+    const validateFecha = () => {
         if (isSoloIda && (fechaInicial === '' || fechaInicial === undefined)){
             return ('Debe seleccionar una fecha de salida');
         }
@@ -59,7 +57,7 @@ const Home = () => {
         }
         return true;
     }
-    const validatePasajeros = (value) => {
+    const validatePasajeros = () => {
         if (cantAdultos === undefined || cantAdultos == 0){
             return 'Debe seleccionar algun pasajero adulto';
         }
@@ -71,34 +69,48 @@ const Home = () => {
         }
         return true;
     }
+
+    const validate = values => {
+        const errors = {};
+        errors.origen = validateOrigen();
+        errors.destino=validateDestino();
+        errors.fecha=validateFecha();
+        errors.pasajeros=validatePasajeros();
+     
+        return errors;
+      };
+
+    const formik = useFormik({
+        initialValues:{
+            origen:"", destino:"", fecha:["",""], soloIda:false, pasajeros:{adultos:1, ninios:0, bebes:0}
+        }
+        ,validate
+        ,onSubmit:() => {
+            // same shape as initial values
+            console.log('errores',formik.errors);
+            handleConsultarVuelos();
+        },
+
+        
+      });
+
     const handleOnSelectOrigen = (value) => {
         setLugarOrigen(value); 
-        //console.log(field)
+       
     }
-    const handleOnSelectDestino = (value,field) => {
-        field.value = value;
+    const handleOnSelectDestino = (value) => {
         setLugarDestino(value); 
-        //console.log(field)
     }
-    const handGetCantAdultos = (cant,field) =>{
-        //console.log('cantAdultos',cant,field);
-        //field.value = {...field.value,adultos:cant};
+    const handGetCantAdultos = (cant) =>{
         setCantAdultos(cant);
     }
-    const handGetCantNinios = (cant,field) =>{
-        //console.log('cantAdultos',cant);
-        //field.value = {...field.value,ninios:cant};
+    const handGetCantNinios = (cant) =>{
         setCantNinos(cant);
-       // console.log(field)
     }
-    const handGetCantBebes = (cant,field) =>{
-        //console.log('cantAdultos',cant);
-        //field.value = {...field.value,bebes:cant};
+    const handGetCantBebes = (cant) =>{
         setCantBebes(cant);
     }
-    const handleRangoFechas = (moment,date,field) => {
-        //console.log('fechas',date,date.length,field);
-        field.value = date;
+    const handleRangoFechas = (moment,date) => {
         try {
             if (date.length <= 2) {
                 setFechaInicial(date[0]);
@@ -109,7 +121,6 @@ const Home = () => {
             }
         } catch (error) {
             message.error(error);
-            field.value = [];
         }
         //console.log(fechaInicial,fechaFinal);
     }
@@ -163,85 +174,72 @@ const Home = () => {
     }
 
 
-    const validate = values => {
-        const errors = {};
-        if (!lugarOrigen) {
-            errors.origen = 'Falta especificar el lugar de destino';
-        } 
-      
-        return errors;
-      };
+    
 
 
-    const formik = useFormik({
-        initialValues:{
-            origen:"", destino:"", fecha:["",""], soloIda:false, pasajeros:{adultos:1, ninios:0, bebes:0}
-        }
-        ,validate
-        ,onSubmit:values => {
-                        // same shape as initial values
-                        console.log(formik.errors);
-                        
-                    },
-
-        
-      });
+    
 
     return (
         <section style={{display: 'flex',justifyContent:'center'}}>
             <Spin spinning={isLoading} tip="Buscando las mejores opciones">
             <div className="contenedor">
                 <h1 className="contenedor-titulo">Completa los campos y busca tu vuelo deseado</h1>
-                <Divider plain></Divider>
-                
+               
+                    <form  name="form1"  style={{display: 'flex', flexDirection:'column', justifyContent:'space-between', 
+                        maxWidth:'800px'}} 
+                        onSubmit={formik.handleSubmit}>
+                         <div>
+                         <Divider>Aeropuerto de Origen</Divider>
+                            {/* <Text strong>Aeropuerto de Origen</Text> */}
+                            
+                            <TextAutocompleteFetchAeropuertos name="origen" placeholder="Buscar lugar de origen"
+                                onSelected={(e)=>handleOnSelectOrigen(e)} />
                     
-                   
-                    <form  name="horizontal_login"  style={{alignContent:'center', maxWidth:'800px', }} onSubmit={formik.handleSubmit}>
-                        <Text strong>Aeropuerto de Origen</Text>
-                        
-                        <TextAutocompleteFetchAeropuertos name="origen" placeholder="Buscar lugar de origen"
-                            onSelected={(e)=>handleOnSelectOrigen(e,'')}/>
-                
-                        {formik.errors.origen && <Text type="danger">{formik.errors.origen}</Text>}
-                        
-                        <Text strong>Aeropuerto de Destino</Text>
+                            {validateOrigen && <Text type="danger">{formik.errors.origen}</Text>}
+                            
+                            <Divider>Aeropuerto de Destino</Divider>
+                            
+                            <TextAutocompleteFetchAeropuertos name="destino" placeholder="Buscar lugar de destino"
+                                onSelected={(e)=>handleOnSelectDestino(e)}/>
+                            {formik.errors.destino && <Text type="danger">{formik.errors.destino}</Text>}
+                    
                            
-                                    <TextAutocompleteFetchAeropuertos name="destino" placeholder="Buscar lugar de destino"
-                                        onSelected={(e)=>handleOnSelectDestino(e,'')}/>
-                                   
-                   
-                        <Text strong>Solo Ida</Text>
-                       
-                        <Switch onChange={() => setIsSoloIda(!isSoloIda)} ></Switch>     
+                            <Divider>Fechas del vuelo </Divider>
                         
-                        <Text strong>Fecha/s del vuelo</Text>
-                       
-                                    {isSoloIda ? 
-                                        <DatePicker name="fechaD" placeholder={'Fech. partida'}  disabledDate={disabledDate} 
-                                        onChange={(m,f) => handleRangoFechas(m,f,'')} />
-                                    : 
-                                        <RangePicker name="fechaD" placeholder={["Fech. partida","Fech. llegada"]} disabledDate={disabledDate} 
-                                        onChange={(m,f) => handleRangoFechas(m,f,'')}  />
-                                    }
-                                    
+                            <div style={{display:'flex', justifyContent:'space-between'}}>
+                                Solo Ida
+                                <div style={{width:'50px'}}> 
+                                    <Switch onChange={() => setIsSoloIda(!isSoloIda)} ></Switch>     
+                                </div>
+                                {isSoloIda ? 
+                                    <DatePicker name="fechaD" placeholder={'Fech. partida'}  disabledDate={disabledDate} 
+                                    onChange={(m,f) => handleRangoFechas(m,f)} />
+                                : 
+                                    <RangePicker name="fechaD" placeholder={["Fech. partida","Fech. llegada"]} disabledDate={disabledDate} 
+                                    onChange={(m,f) => handleRangoFechas(m,f)}  />
+                                }
+                            </div>
+                            {formik.errors.fecha && <Text type="danger">{formik.errors.fecha}</Text>}            
 
-                        
-                        <div style={{paddingTop:'18px'}} >
-                            <Text strong>Cantidad de Pasajeros</Text>
-                           
-                                        <CantPasajeros name="adultos" text="Adultos" defaultCant="1" onChange={(e) => handGetCantAdultos(e,'')} />
-                                        <CantPasajeros name="ninios" text="Niños" defaultCant="0" onChange={(e) => handGetCantNinios(e,'')} />
-                                        <CantPasajeros name="bebes" text="Bebes" defaultCant="0" onChange={(e) => handGetCantBebes(e,'')} />
-                               
-                        </div> 
-                
+                            
+                            <div style={{paddingTop:'18px'}} >
+                                <Divider>Cantidad de pasajeros</Divider>
+                            
+                                <CantPasajeros name="adultos" text="Adultos" defaultCant="1" onChange={(e) => handGetCantAdultos(e,'')} />
+                                <CantPasajeros name="ninios" text="Niños" defaultCant="0" onChange={(e) => handGetCantNinios(e,'')} />
+                                <CantPasajeros name="bebes" text="Bebes" defaultCant="0" onChange={(e) => handGetCantBebes(e,'')} />
+                                
+                                {formik.errors.pasajeros && <Text type="danger">{formik.errors.pasajeros}</Text>}
+                            </div> 
+                         
+                        </div>
                         <Divider plain></Divider>
                     
                         <div style={{width:'100%',display:'flex',justifyContent:'center'}}>
                             <Button
                                 type="primary"
                                 htmlType="submit"
-                                
+                                onClick={(e)=>handleConsultarVuelos(e)}
                                 >
                                 Buscar Vuelos
                             </Button>
