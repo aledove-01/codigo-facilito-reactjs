@@ -1,42 +1,33 @@
-import { useEffect, useState, forwardRef } from 'react';
+import { useEffect,useRef, useState } from 'react';
 import useFetchConsultarAeropCiudades from './useFetchConsultarAeropCiudades';
 import './TextAutocompleteFetchAeropuertos.css';
 import '../css/paises.css';
-import { AutoComplete, Input,message } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { AutoComplete, Input,message, Spin } from 'antd';
 import 'antd/dist/antd.css';
 import edificioImg from '../images/edificio.png';
 import avionImg from '../images/plano-alt.png';
 
 const TextAutocompleteFetchAeropuertos = (props) => {
-    const [txtBusqueda, setTxtBusqueda] = useState('');
-
     const { name, placeholder, onSelected } = props;
     const [aeropuertos, setAeropuertos] = useState([]);
     const [ciudades, setCiudades] = useState([]);
-    const { consultarAeropuertos, loading, error } = useFetchConsultarAeropCiudades();
-    const [localidadesAeropuertos, setLocalidadesAeropuertos] = useState([{}]);
-    // const [showNoResultsText, SetShowNoResultsText] = useState('No hay resultados');
-    // const [lugarSeleccionado, setLugarSeleccionado] = useState('');
-     
-
-   
-    const seleccionoUbicacion = (e) => {
-        console.log(e);
-    }
+    const { consultarAeropuertos, error } = useFetchConsultarAeropCiudades();
+    const [isLoading, setIsLoading] = useState(false);
+    const autoComplete = useRef();
 
     const renderTitle = (titulo, tipo) => (
         <div>
             {tipo === 'CITY'?<img style={{
-                width:'20px', height:'15px', float: 'left', paddingRight:'10px'
+                width:'25px', height:'15px', float: 'left', paddingRight:'10px'
             }} src={edificioImg} />:<img style={{
-                width:'20px', height:'15px', float: 'left', paddingRight:'10px'
+                width:'25px', height:'15px', float: 'left', paddingRight:'10px'
             }} src={avionImg} />}
             <span>
                 { titulo}
             </span>
         </div>
       );
+
     const options = [
       {
         label: renderTitle('Ciudades', 'CITY'),
@@ -47,6 +38,7 @@ const TextAutocompleteFetchAeropuertos = (props) => {
         options: aeropuertos,
       }
     ];
+    
     const renderItem = (titulo, nombre, id, iata, pais, cssPais ) => ({
         value: nombre+' - ('+iata+') '+pais+' ['+ id + ']',
         label: (
@@ -67,72 +59,57 @@ const TextAutocompleteFetchAeropuertos = (props) => {
         ),
       });
 
-      
-    // const handleOnSelect = (value,options) => {
-    //   try {
-    //     console.log(options)
-    //     setLugarSeleccionado(value.split('(')[1].split(')')[0]);      
-    //   } catch (error) {
-    //     setLugarSeleccionado('');
-    //     console.log('error',error);
-    //   }
-    //}
     const handleOnSearch = async (ctr) => {
-        console.log(ctr);
-         
-        if (ctr.length > 2) {
-            message.info('Buscando ['+ctr+']');
-            setTxtBusqueda(ctr);
-            
+        //console.log(ctr);
+        if (ctr.length > 2 ) {
+            //message.info('Buscando ['+ctr+']');
+           
+            setIsLoading(true);
             const consultaDatos = async () => {
-              if (txtBusqueda.length >= 3) {
+              if (ctr.length >= 3 && !isLoading) {
                 consultarAeropuertos(ctr).then((datos)=>{
-                  console.log('dat:',datos)
+                  //console.log('dat:',datos)
                   setAeropuertos([]);
                   setCiudades([]);
                   let colCiudades = [];
                   let colAeropuertos = [];
-          
-                  //SetShowNoResultsText('Buscando...');
-                  //await consultarAeropuertos(ctr)
-                  //const detalleCiudadesAuerpResult = await datos;
-                  
-                  
-                  setLocalidadesAeropuertos(datos?.map((dato)=>{
-                      console.log(dato.titulo,dato.subType,dato.name,dato.iata)
+             
+                  datos?.map((dato)=>{
+                      //console.log(dato.titulo,dato.subType,dato.name,dato.iata)
                       if(dato.subType === 'CITY'){
                           colCiudades.push(renderItem(dato.titulo,dato.name,dato.id,dato.iataCode, dato.address.countryName, 'flag flag-'+dato.address.countryCode.toLowerCase()));
                       }else{
                           colAeropuertos.push(renderItem(dato.titulo,dato.name,dato.id,dato.iataCode, dato.address.countryName, 'flag flag-'+dato.address.countryCode.toLowerCase()));
                       }
                       
-                  }))
+                  });
                   setAeropuertos(colAeropuertos);
                   setCiudades(colCiudades);
                         
-                  
-          
                   if (datos?.length <= 0) {
                       message.info('No hay resultados');
-                      setLocalidadesAeropuertos([{}])
                   };
-
+                  
+                  
+                  setIsLoading(false);
+                  autoComplete.current.focus({
+                    cursor: 'all',
+                  });
                 });
               }
             }
             consultaDatos();
-           
-
-        }
-        
+        }   
     }
     return (
         <>
-             
+          <Spin spinning={isLoading} tip="Buscando ...">
             <AutoComplete
+                ref={autoComplete}
+                
                 dropdownClassName="certain-category-search-dropdown"
                 dropdownMatchSelectWidth={500}
-                style={{ width: '300px', paddingBottom:'25px' }}
+                style={{ width: '300px' }}
                 options={options}
                 onSearch={handleOnSearch}
                 onSelect={onSelected}
@@ -142,6 +119,7 @@ const TextAutocompleteFetchAeropuertos = (props) => {
             </AutoComplete>
              
             {error && <p>{error}</p>}
+          </Spin>
         </>
     );
 }

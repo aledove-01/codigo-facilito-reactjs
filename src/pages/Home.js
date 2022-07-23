@@ -1,24 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useFetchConsultarVuelos from '../components/useFetchConsultarVuelos';
-import {Formik} from 'formik';
+import { useFormik, Form, Field } from 'formik';
 import TextAutocompleteFetchAeropuertos from '../components/TextAutocompleteFetchAeropuertos';
-import { Button, Card, Form, DatePicker,Typography,Divider,Spin,Switch,message } from 'antd';
+import { Button, DatePicker,Typography,Divider,Spin,Switch,message } from 'antd';
 import CantPasajeros from '../components/CantPasajeros';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { pasosStart } from '../redux/slices/pasos';
+import { busquedaVuelosInit, busquedaVuelosComplete } from '../redux/slices/busqueda';
 
+//import {fetchVuelosStart} from '../redux/slices/resultsVuelos';
+//import {vueloStart} from '../redux/slices/detaVuelo';
 
 const Home = () => {
     const navigate = useNavigate();
-    const [form] = Form.useForm();
+    const dispatch = useDispatch();
+    const {Text} = Typography;
+    //const [form] = Form.useForm();
     const { RangePicker } = DatePicker;
-    const { Text } = Typography;
-    //const Adultos = CantPasajeros();//({text:'Adultos', defaultCant:1});
-    //const Ninos = useCantPasajeros('Ninos',0);
-    //const Bebes = useCantPasajeros('Bebes',0);
+    const { consultarVuelos } = useFetchConsultarVuelos();
     const [lugarOrigen,setLugarOrigen] = useState('');
     const [lugarDestino,setLugarDestino] = useState('');
-    const [iataOrigen, setIataOrigen] = useState('BAR');
-    const [iataDestino, setIataDestino] = useState('LON');
     const [fechaInicial, setFechaInicial] = useState('');
     const [fechaFinal, setFechaFinal] = useState('');
     const [cantAdultos, setCantAdultos] = useState(1);
@@ -27,62 +29,76 @@ const Home = () => {
     const [isLoading,setIsLoading] = useState(false);
     const [isSoloIda, setIsSoloIda] = useState(false);
 
-    const { consultarVuelos, vuelos, loading, error } = useFetchConsultarVuelos();
-    //const [muestroResultados, setMuestroResultados] = useState(false);
+    useEffect(() => {
+        //vuelo a cero el contador de pasos
+        dispatch(pasosStart());
+    },[]);
 
-    const getIataCode = (txtLugar) => {
-        let iataCode = '';
-        try {
-            iataCode = txtLugar.split('(')[1].split(')')[0];      
-        } catch (error) {
-            iataCode = '';
-            console.log('error',error);
+    //VALIDACION FORMULARIO
+    const validateOrigen = (value) => {
+        console.log('origen',value)
+        if (lugarOrigen === '' || lugarOrigen === undefined && getIataCode(lugarOrigen) === ''){
+            return 'Debe seleccionar un aeropuerto de origen';
         }
-        return iataCode;
+        return true;
     }
-   
-
-     
-    const handleConsultarVuelos = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-        console.log('lugarOrigen',lugarOrigen,lugarDestino,fechaInicial,fechaFinal,cantAdultos,cantNinos,cantBebes);
-        
-        const paramBusqueda = {origen:getIataCode(lugarOrigen), destino:getIataCode(lugarDestino), fecha:fechaInicial, fechaRegreso:fechaFinal, 
-                                adultos:cantAdultos,ninios:cantNinos,bebes:cantBebes};
-        await consultarVuelos(paramBusqueda);
-        console.log('detalle',vuelos);
-        //console.log('error',error);
-        //setMuestroResultados(true);  
-        setIsLoading(false);
-        navigate(`/ListaVuelos/${lugarOrigen}/${lugarDestino}/${fechaInicial}/${fechaFinal}/${cantAdultos}/${cantNinos}/${cantBebes}`);
+    const validateDestino = (value) => {
+        //console.log(value)
+        if (lugarDestino === '' || lugarDestino === undefined && getIataCode(lugarDestino) === ''){
+            return 'Debe seleccionar un aeropuerto de destino';
+        }
+        return true;
     }
-
-    const disabledDate = (current) => {
-        let hoy = new Date()
-        //console.log(hoy)
-        return !(current > hoy);
-      };
-
-    const onFinish = (values) => {
-        console.log('Finish:', values);
-      };
-    
-    const handGetCantAdultos = (cant) =>{
-        //console.log('cantAdultos',cant);
+    const validateFecha = (value) => {
+        //console.log('V',fechaInicial,fechaFinal);
+        if (isSoloIda && (fechaInicial === '' || fechaInicial === undefined)){
+            return ('Debe seleccionar una fecha de salida');
+        }
+        if (!isSoloIda && (fechaInicial === '' || fechaInicial === undefined || fechaFinal === '' || fechaFinal === undefined)){
+            return ('Debe seleccionar una fecha de salida y una de llegada');
+        }
+        return true;
+    }
+    const validatePasajeros = (value) => {
+        if (cantAdultos === undefined || cantAdultos == 0){
+            return 'Debe seleccionar algun pasajero adulto';
+        }
+        if ((cantNinos/2) > cantAdultos){
+            return 'Solo se permiten 2 niños por adulto';
+        }
+        if (cantBebes > cantAdultos){
+            return 'No puede haber más bebes que adultos';
+        }
+        return true;
+    }
+    const handleOnSelectOrigen = (value) => {
+        setLugarOrigen(value); 
+        //console.log(field)
+    }
+    const handleOnSelectDestino = (value,field) => {
+        field.value = value;
+        setLugarDestino(value); 
+        //console.log(field)
+    }
+    const handGetCantAdultos = (cant,field) =>{
+        //console.log('cantAdultos',cant,field);
+        //field.value = {...field.value,adultos:cant};
         setCantAdultos(cant);
     }
-    const handGetCantNinios = (cant) =>{
+    const handGetCantNinios = (cant,field) =>{
         //console.log('cantAdultos',cant);
+        //field.value = {...field.value,ninios:cant};
         setCantNinos(cant);
+       // console.log(field)
     }
-    const handGetCantBebes = (cant) =>{
+    const handGetCantBebes = (cant,field) =>{
         //console.log('cantAdultos',cant);
+        //field.value = {...field.value,bebes:cant};
         setCantBebes(cant);
     }
-
-    const handleRangoFechas = (moment,date) => {
-        //console.log('fechas',date,date.length);
+    const handleRangoFechas = (moment,date,field) => {
+        //console.log('fechas',date,date.length,field);
+        field.value = date;
         try {
             if (date.length <= 2) {
                 setFechaInicial(date[0]);
@@ -93,75 +109,148 @@ const Home = () => {
             }
         } catch (error) {
             message.error(error);
+            field.value = [];
         }
         //console.log(fechaInicial,fechaFinal);
     }
-    return (
-        <>
-            <Spin spinning={isLoading} tip="Buscando las mejores opciones">
-            <h1>Completa los campos y busca tu vuelo deseado</h1>
-            <Formik
-                initialValues={{origen:"", destino:"", fecha:"", adultos:1, ninios:0, bebes:0}}
-                >
-                <Form form={form} name="horizontal_login" layout="inline" 
-                 onFinish={onFinish} 
-                 style={{alignContent:'center', maxWidth:'800px'}}>
-                      
-                            <Form.Item
-                                label="Origen"
-                                name="Origen">
-                                <TextAutocompleteFetchAeropuertos name="origen" placeholder="Buscar lugar de origen"
-                                onSelected={(e)=>setLugarOrigen(e)}/>
-                            </Form.Item>
-                       
-                            <Form.Item
-                                label="Destino"
-                                name="Destino">
-                                <TextAutocompleteFetchAeropuertos name="destino" placeholder="Buscar lugar de destino"
-                                onSelected={(e)=>setLugarDestino(e)}/>
-                            </Form.Item>
-                       
-                            <Form.Item name="switch" label="Solo Ida:"><Switch onChange={() => setIsSoloIda(!isSoloIda)} ></Switch>&nbsp;&nbsp;</Form.Item>
-                            <Form.Item
-                                
-                                name="Fechas">
-                                    
-                                {isSoloIda ? 
-                                 <Form.Item name="fechaIda"><DatePicker  disabledDate={disabledDate} onChange={handleRangoFechas} /></Form.Item> : 
-                                 <Form.Item name="Fechas"><RangePicker  disabledDate={disabledDate} onChange={handleRangoFechas}  /></Form.Item>
-                                 }
-                               
-                            </Form.Item>
-                       
-                            <Form.Item >
-                                <div >
-                                    <CantPasajeros text="Adultos" defaultCant="1" onChange={handGetCantAdultos} />
-                                    <CantPasajeros text="Niños" defaultCant="0" onChange={handGetCantNinios} />
-                                    <CantPasajeros text="Bebes" defaultCant="0" onChange={handGetCantBebes} />
-                                </div>
-                            </Form.Item>
-                            <Divider plain></Divider>
-                            <Form.Item shouldUpdate>
-                                {() => (
-                                <Button
-                                    type="primary"
-                                    htmlType="submit"
-                                    onClick={ handleConsultarVuelos}>
-                                    Buscar Vuelos
-                                </Button>
-                                )}
-                            </Form.Item>
-                    
-                        
-                    </Form>
-                </Formik>
-               {/* // {loading && <p>Cargando...</p>}
-               // {error && <p>{error}</p>}
-        
-                //{muestroResultados && vuelos.map(vuelo => <p key={vuelo.id}>Origen: {vuelo.source} - Asientos:{vuelo.numberOfBookableSeats} - Precio: {vuelo.price.total} {vuelo.price.currency}</p>)} */}
 
+    const getIataCode = (txtLugar) => {
+        let iataCode = '';
+        if (txtLugar === '' || txtLugar === undefined || !txtLugar.includes('(')){
+            message.error("Debe seleccionar un aeropuerto");
+        }
+        try {
+            iataCode = txtLugar.split('(')[1].split(')')[0];      
+        } catch (error) {
+            iataCode = '';
+            message.error(error);
+        }
+        return iataCode;
+    }
+   
+    const disabledDate = (current) => {
+        let hoy = new Date()
+        //console.log(hoy)
+        return !(current > hoy);
+      };
+
+    const handleConsultarVuelos = async (e) => {
+        e.preventDefault();
+        
+        const paramBusqueda = {origen:getIataCode(lugarOrigen), destino:getIataCode(lugarDestino), fecha:fechaInicial, fechaRegreso:fechaFinal, 
+                                adultos:cantAdultos,ninios:cantNinos,bebes:cantBebes,lugarOrigenCompleto:lugarOrigen,lugarDestinoCompleto:lugarDestino};
+        
+        //let searchParams = new URLSearchParams(paramBusqueda)
+
+        setIsLoading(true);
+        //console.log('lugarOrigen',lugarOrigen,lugarDestino,fechaInicial,fechaFinal,cantAdultos,cantNinos,cantBebes);
+        dispatch(busquedaVuelosInit());
+
+        dispatch(busquedaVuelosComplete(paramBusqueda));
+        //si hay parametros en la url busco en la carga (posible refresh o F5)
+        const detaVuelos = await consultarVuelos(paramBusqueda);
+        if (!detaVuelos) {
+            message.error("Faltan valores para la búsqueda");
+            setIsLoading(false);
+            return false;
+        }
+        setIsLoading(false);
+        if (detaVuelos.data.length > 0){
+            navigate('/ListaVuelos?'); //+searchParams);
+        }else{
+            message.warning("No se encontraron vuelos");
+        }
+    }
+
+
+    const validate = values => {
+        const errors = {};
+        if (!lugarOrigen) {
+            errors.origen = 'Falta especificar el lugar de destino';
+        } 
+      
+        return errors;
+      };
+
+
+    const formik = useFormik({
+        initialValues:{
+            origen:"", destino:"", fecha:["",""], soloIda:false, pasajeros:{adultos:1, ninios:0, bebes:0}
+        }
+        ,validate
+        ,onSubmit:values => {
+                        // same shape as initial values
+                        console.log(formik.errors);
+                        
+                    },
+
+        
+      });
+
+    return (
+        <section style={{display: 'flex',justifyContent:'center'}}>
+            <Spin spinning={isLoading} tip="Buscando las mejores opciones">
+            <div className="contenedor">
+                <h1 className="contenedor-titulo">Completa los campos y busca tu vuelo deseado</h1>
+                <Divider plain></Divider>
+                
+                    
+                   
+                    <form  name="horizontal_login"  style={{alignContent:'center', maxWidth:'800px', }} onSubmit={formik.handleSubmit}>
+                        <Text strong>Aeropuerto de Origen</Text>
+                        
+                        <TextAutocompleteFetchAeropuertos name="origen" placeholder="Buscar lugar de origen"
+                            onSelected={(e)=>handleOnSelectOrigen(e,'')}/>
+                
+                        {formik.errors.origen && <Text type="danger">{formik.errors.origen}</Text>}
+                        
+                        <Text strong>Aeropuerto de Destino</Text>
+                           
+                                    <TextAutocompleteFetchAeropuertos name="destino" placeholder="Buscar lugar de destino"
+                                        onSelected={(e)=>handleOnSelectDestino(e,'')}/>
+                                   
+                   
+                        <Text strong>Solo Ida</Text>
+                       
+                        <Switch onChange={() => setIsSoloIda(!isSoloIda)} ></Switch>     
+                        
+                        <Text strong>Fecha/s del vuelo</Text>
+                       
+                                    {isSoloIda ? 
+                                        <DatePicker name="fechaD" placeholder={'Fech. partida'}  disabledDate={disabledDate} 
+                                        onChange={(m,f) => handleRangoFechas(m,f,'')} />
+                                    : 
+                                        <RangePicker name="fechaD" placeholder={["Fech. partida","Fech. llegada"]} disabledDate={disabledDate} 
+                                        onChange={(m,f) => handleRangoFechas(m,f,'')}  />
+                                    }
+                                    
+
+                        
+                        <div style={{paddingTop:'18px'}} >
+                            <Text strong>Cantidad de Pasajeros</Text>
+                           
+                                        <CantPasajeros name="adultos" text="Adultos" defaultCant="1" onChange={(e) => handGetCantAdultos(e,'')} />
+                                        <CantPasajeros name="ninios" text="Niños" defaultCant="0" onChange={(e) => handGetCantNinios(e,'')} />
+                                        <CantPasajeros name="bebes" text="Bebes" defaultCant="0" onChange={(e) => handGetCantBebes(e,'')} />
+                               
+                        </div> 
+                
+                        <Divider plain></Divider>
+                    
+                        <div style={{width:'100%',display:'flex',justifyContent:'center'}}>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                
+                                >
+                                Buscar Vuelos
+                            </Button>
+                        </div>
+                      
+                    </form>
+                </div>
             </Spin>
-        </>
+        </section>
     )
 }
 

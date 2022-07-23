@@ -15,7 +15,7 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 150vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -28,6 +28,7 @@
   color: #61dafb;
 }
 
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -36,3 +37,24 @@
     transform: rotate(360deg);
   }
 }
+
+.contenedor{
+  border:solid 0px gray;
+  border-radius:5px;
+  padding:20px;
+  min-width: 350px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+@media screen and (max-width: 600px) {
+  .contenedor{
+    width: 100%;
+  }
+}
+  
+.contenedor-titulo{
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+

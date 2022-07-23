@@ -36,7 +36,7 @@ const useConfFecthAmadeus = () => {
            
             const resp = await fetch(urlPpal + "/v1/security/oauth2/token", requestOptions)
             const data = await resp.json();
-            console.log('token',data.access_token)
+            //console.log('token',data.access_token)
             tokenId = (data).access_token;
             //.then(response => response.text())
             //.then(result => console.log('res',JSON.parse(result).access_token))

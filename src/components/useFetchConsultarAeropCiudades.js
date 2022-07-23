@@ -5,7 +5,7 @@ const useFetchConsultarAeropCiudades = () => {
     //const [datos, setDatos] = useState([]);
     let datos = [];
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { getToken, urlPpal } = useConfFecthAmadeus();
 
     const consultarAeropuertos = async (txtBusqueda) => {
@@ -13,7 +13,7 @@ const useFetchConsultarAeropCiudades = () => {
         const idToken = await getToken();
         myHeaders.append("Authorization", "Bearer " + idToken);
 
-        setLoading(true);
+        setIsLoading(true);
       
         var requestOptions = {
             method: 'GET',
@@ -26,7 +26,7 @@ const useFetchConsultarAeropCiudades = () => {
             "keyword="+txtBusqueda, requestOptions);
             const data = await response.json();
             if (!data.errors) {
-                console.log('ok',data.data);
+                //console.log('ok',data.data);
                 //setDatos(data.data);
                 datos = data.data;
                 return datos;
@@ -39,9 +39,9 @@ const useFetchConsultarAeropCiudades = () => {
             console.log('error',error);
             setError(error);
         }
-        setLoading(false);
+        setIsLoading(false);
     }
 
-    return { consultarAeropuertos, loading, error };
+    return { consultarAeropuertos, isLoading, error };
 }
 export default useFetchConsultarAeropCiudades;

@@ -1,6 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
-import reducers from "../reducers";
+import resultsVuelos from "../slices/resultsVuelos";
+import detalleVuelo from "../slices/detaVuelo";
+import pasos from "../slices/pasos";
+import busquedaVuelos from "../slices/busqueda";
 
 export const store = configureStore({
-    reducer:reducers,
-});
+    reducer: {
+        resultsVuelos,
+        detalleVuelo,
+        pasos,
+        busquedaVuelos,
+    },
+  })
