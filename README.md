@@ -7,6 +7,14 @@ busqie que no hayan datos pre-cargados en un archivo, sino que todos los datos l
 
 Como es un proyecto de Reactjs y al no ser de diseño no inverti demasiado tiempo en la UI. Si traté de que sea armonica, pero no hay un esfuerzo en el diseño. 
 
+## Link de acceso del proyecto
+
+![link a la web del proyecto desplegada en Vercel](https://codigo-facilito-reactjs.vercel.app/)
+
+## Video de la aplicacion
+
+[![Video de la app](https://img.youtube.com/vi/BFFQ9hgovpg/0.jpg)](https://www.youtube.com/watch?v=BFFQ9hgovpg)
+
 ## Resumen de lo implementado:
 
 Utilice useEffect, useState, formik, custom hooks (arme customs hooks para implementar las llamadas a la api Amadeus), fetch para realizar las llamadas a la api, 
