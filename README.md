@@ -9,7 +9,7 @@ Como es un proyecto de Reactjs y al no ser de diseño no inverti demasiado tiemp
 
 ## Link de acceso del proyecto
 
-![link a la web del proyecto desplegada en Vercel](https://codigo-facilito-reactjs.vercel.app/)
+[link a la web del proyecto desplegada en Vercel](https://codigo-facilito-reactjs.vercel.app/)
 
 ## Video de la aplicacion
 
