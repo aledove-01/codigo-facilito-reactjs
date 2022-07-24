@@ -1,70 +1,37 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Objetivo del proyecto:
 
-## Available Scripts
+La idea del proyecto es que un usuario pueda realizar una búsqueda indicando fecha de partida, fecha de llegada, personas que integran el viaje, lugar de origen, lugar de destino.
 
-In the project directory, you can run:
+busqie que no hayan datos pre-cargados en un archivo, sino que todos los datos los brinde la API de Amadeus ([https://developers.amadeus.com/self-service/apis-docs](https://developers.amadeus.com/self-service/apis-docs)), desde las ciudades, los vuelos, el nombre de la aerolinea y el listado de viajes.
 
-### `npm start`
+Como es un proyecto de Reactjs y al no ser de diseño no inverti demasiado tiempo en la UI. Si traté de que sea armonica, pero no hay un esfuerzo en el diseño. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Resumen de lo implementado:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Utilice useEffect, useState, formik, custom hooks (arme customs hooks para implementar las llamadas a la api Amadeus), fetch para realizar las llamadas a la api, 
 
-### `npm test`
+custom controls, por ejemplo en la seleccion de pasajeros o en la seleccion de la ciudad (agregue el spinner y la busqueda a la API para ver las ciudades), entre otros.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+![imagen 1](https://raw.githubusercontent.com/aledove-01/codigo-facilito-reactjs/main/imgReadme/control1.png)
 
-### `npm run build`
+![imagen 2](https://raw.githubusercontent.com/aledove-01/codigo-facilito-reactjs/main/imgReadme/control2.png)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Redux para mantener el estado en un solo sitio, de la busqueda, y la seleccion del vuelo. Si bien se podria haber realizado con context decidi utilizar redux para tener mas experiencia en su utilizacion.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Utilice el framework ant design, vi que tenia componentes simples.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Figma entregado por codigo facilito
 
-### `npm run eject`
+Pantalla inicial:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+![figma 1](https://raw.githubusercontent.com/aledove-01/codigo-facilito-reactjs/main/imgReadme/figma1.png)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Pantalla de detalle de vuelos
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+![figma 2](https://raw.githubusercontent.com/aledove-01/codigo-facilito-reactjs/main/imgReadme/figma2.png)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Pantalla final de información del vuelo seleccionado
 
-## Learn More
+![figma 3](https://raw.githubusercontent.com/aledove-01/codigo-facilito-reactjs/main/imgReadme/figma3.png)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
