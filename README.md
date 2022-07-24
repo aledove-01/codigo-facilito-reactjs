@@ -17,6 +17,8 @@ Como es un proyecto de Reactjs y al no ser de diseño no inverti demasiado tiemp
 
 ## Resumen de lo implementado:
 
+El control de busqueda de aeropuertos a partir del tercer caracter busca en la API de amadeus los aeropuesrtos y ciudades disponibles.
+
 Utilice useEffect, useState, formik, custom hooks (arme customs hooks para implementar las llamadas a la api Amadeus), fetch para realizar las llamadas a la api, 
 
 custom controls, por ejemplo en la seleccion de pasajeros o en la seleccion de la ciudad (agregue el spinner y la busqueda a la API para ver las ciudades), entre otros.
